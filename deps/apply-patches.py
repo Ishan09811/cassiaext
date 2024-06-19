@@ -75,9 +75,10 @@ for dep in deps:
     for patch in dep.patches:
             print(f"  - \"{patch.subject}\"")
 
-# Ask for confirmation
-if (input("Are you sure you want to apply all patches? (y/n) ") != "y"):
-    exit(0)
+# Ask for confirmation if not in CI environment
+if not os.getenv("CI"):
+    if (input("Are you sure you want to apply all patches? (y/n) ") != "y"):
+        exit(0)
 
 # Apply all patches
 for dep in deps:
