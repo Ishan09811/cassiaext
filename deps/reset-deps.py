@@ -40,9 +40,10 @@ print("Dependencies:")
 for dep in deps:
     print(f"* {dep.name} @ {dep.tag}")
 
-# Ask for confirmation
-if (input("Are you sure you want to reset all dependencies? (y/n) ") != "y"):
-    exit(0)
+# Ask for confirmation if not in CI environment
+if not os.getenv("CI"):
+    if (input("Are you sure you want to reset all dependencies? (y/n) ") != "y"):
+        exit(0)
 
 # Reset all dependencies
 for dep in deps:
