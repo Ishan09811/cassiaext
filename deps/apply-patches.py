@@ -83,8 +83,14 @@ if not os.getenv("CI"):
 # Apply all patches
 for dep in deps:
     print(f"Applying patches for {dep.name}")
+    os.chdir(os.path.join(script_dir, dep.name))  # Change directory to the dependency repository
+
+    # Set Git user identity locally
+    subprocess.run(["git", "config", "user.name", "Ishan09811"])
+    subprocess.run(["git", "config", "user.email", "ishanbasaki7@gmail.com"])
+
     # Double check that the repository is on the correct tag
-    desc = subprocess.run(["git", "describe", "--exact-match", "--tags"], cwd=os.path.join(script_dir, dep.name), capture_output=True, text=True)
+    desc = subprocess.run(["git", "describe", "--exact-match", "--tags"], capture_output=True, text=True)
     if (desc.returncode != 0):
         print(f"Error: Failed to get tag for {dep.name}, this could be due to the repository already being patched, it can be reset with reset-deps.py")
         exit(1)
@@ -93,7 +99,7 @@ for dep in deps:
         exit(1)
 
     # Ensure there's no uncommitted changes
-    status = subprocess.run(["git", "status", "-uno", "--porcelain=v1"], cwd=os.path.join(script_dir, dep.name), capture_output=True, text=True)
+    status = subprocess.run(["git", "status", "-uno", "--porcelain=v1"], capture_output=True, text=True)
     if (status.returncode != 0):
         print(f"Error: Failed to check status for {dep.name}")
         exit(1)
@@ -104,14 +110,16 @@ for dep in deps:
     for patch in dep.patches:
         # Apply the patch
         print(f"Applying patch {patch.name}")
-        if (subprocess.run(["git", "apply", "--ignore-space-change", "--ignore-whitespace", patch.path], stdout=sys.stdout, cwd=os.path.join(script_dir, dep.name)).returncode != 0):
+        if (subprocess.run(["git", "apply", "--ignore-space-change", "--ignore-whitespace", patch.path], stdout=sys.stdout).returncode != 0):
             print(f"Error: Failed to apply patch {patch.name}")
             exit(1)
 
     # Commit the changes as a single commit
-    if (subprocess.run(["git", "add", "-A"], stdout=sys.stdout, cwd=os.path.join(script_dir, dep.name)).returncode != 0):
+    if (subprocess.run(["git", "add", "-A"]).returncode != 0):
         print(f"Error: Failed to add changes for {dep.name}")
         exit(1)
-    if (subprocess.run(["git", "commit", "-m", f"Apply Cassia patches"], stdout=sys.stdout, cwd=os.path.join(script_dir, dep.name)).returncode != 0):
+    if (subprocess.run(["git", "commit", "-m", f"Apply Cassia patches"]).returncode != 0):
         print(f"Error: Failed to commit changes for {dep.name}")
         exit(1)
+
+    os.chdir(script_dir)  # Change back to the script's directory after processing each dependency
