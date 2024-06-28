@@ -65,7 +65,7 @@ function(update_cross)
     "LDFLAGS=${CMAKE_SHARED_LINKER_FLAGS} ${CMAKE_SHARED_LINKER_FLAGS_${BUILD_TYPE_UC}} ${CROSS_COMPILER_SYSROOT_ARG}"
     "PKG_CONFIG_LIBDIR=${OUTPUT_PREFIX_DIR}/lib/pkgconfig:${OUTPUT_PREFIX_DIR}/share/pkgconfig"
     "PKG_CONFIG_PATH=/usr/share/pkgconfig"
-    "PKG_CONFIG=pkg-config"
+    "PKG_CONFIG=pkgconfig"
   )
 
   # Only way to make value accessible in local scope as well as parent scope
